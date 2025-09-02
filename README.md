@@ -1,2 +1,3 @@
 # fasthtml-admin
-FastHTML app with admin panel
+
+FastHTML app with an admin panel

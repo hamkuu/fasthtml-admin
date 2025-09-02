@@ -1,0 +1,11 @@
+# vercel
+.vercel
+
+# PyCharm
+.idea/
+
+# Environment variables
+.env
+
+# FastHTML
+.sesskey
