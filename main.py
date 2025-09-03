@@ -8,6 +8,16 @@ from monsterui.all import *
 
 import os
 
+
+def user_auth_before(req, sess):
+    auth = req.scope["auth"] = sess.get("auth", None)
+    return None if auth else RedirectResponse("/", status_code=303)
+
+
+before = Beforeware(
+    user_auth_before, skip=[r"/favicon\.ico", r"/static/.*", r".*\.css", r".*\.js", "/login", "/", "/redirect"]
+)
+
 PRODUCTION = os.getenv("PRODUCTION", "").lower() in ("1", "true")
 
 if PRODUCTION:
@@ -98,9 +108,6 @@ def theme():
 
 @rt("/admin/users")
 def admin_users(sess):
-    if not sess.get("auth"):
-        return RedirectResponse("/", status_code=303)
-
     # Restrict access to certain users
     current = db.users("oauth_id=?", (sess["auth"],))[0]
     if not (current.email.startswith("hamkuu") or current.email.endswith("@nablas.com")):
@@ -142,9 +149,6 @@ def admin_users(sess):
 @rt
 def edit_credit(id: int):
     user = db.users[id]
-    if not user:
-        return P("User not found")
-
     form = Form(action=update_credit, method="post")(
         Input(type="hidden", name="id", value=user.id),
         Input(type="number", name="credits", value=user.credits, cls="w-20 text-center"),
@@ -155,11 +159,9 @@ def edit_credit(id: int):
 
 
 @rt
-def update_credit(id: int, credits: int):
-    user = db.users[id]
-    if not user:
-        return P("User not found")
-    user.credits = credits
+def update_credit(uid: int, new_credits: int):
+    user = db.users[uid]
+    user.credits = new_credits
     db.users.update(user)
     return RedirectResponse("/admin/users", status_code=303)
 
