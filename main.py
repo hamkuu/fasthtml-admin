@@ -159,9 +159,9 @@ def edit_credit(id: int):
 
 
 @rt
-def update_credit(id: int, credits: int):
-    user = db.users[id]
-    user.credits = credits
+def update_credit(uid: int, new_credits: int):
+    user = db.users[uid]
+    user.credits = new_credits
     db.users.update(user)
     return RedirectResponse("/admin/users", status_code=303)
 
