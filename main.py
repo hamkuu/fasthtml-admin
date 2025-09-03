@@ -8,6 +8,16 @@ from monsterui.all import *
 
 import os
 
+
+def user_auth_before(req, sess):
+    auth = req.scope["auth"] = sess.get("auth", None)
+    return None if auth else RedirectResponse("/", status_code=303)
+
+
+before = Beforeware(
+    user_auth_before, skip=[r"/favicon\.ico", r"/static/.*", r".*\.css", r".*\.js", "/login", "/", "/redirect"]
+)
+
 PRODUCTION = os.getenv("PRODUCTION", "").lower() in ("1", "true")
 
 if PRODUCTION:
