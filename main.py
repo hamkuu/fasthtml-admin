@@ -89,7 +89,7 @@ def home(sess):
             DivVStacked(
                 H2(f"Welcome, {user.name}!"),
                 Subtitle(f"Email: {user.email}"),
-                Img(src=user.picture, alt="User Picture", cls="w-24 h-24 rounded-full", referrerpolicy="no-referrer"),
+                Img(src=user.picture, alt="User Picture"),
                 P(f"Available Credits: {user.credits}"),
             ),
             cls="py-10",
@@ -99,11 +99,9 @@ def home(sess):
 
 @rt
 def theme():
-    return Container(
-        DivVStacked(
-            A(UkIcon("arrow-left"), "Back", href="javascript:history.back()", cls=(ButtonT.secondary, "btn")),
-            ThemePicker(color=True, radii=True, shadows=True, font=True, mode=True, cls="p-4", custom_themes=[]),
-        )
+    return (
+        ex_navbar1(),
+        ThemePicker(color=True, radii=True, shadows=True, font=True, mode=True, cls="p-4", custom_themes=[]),
     )
 
 
