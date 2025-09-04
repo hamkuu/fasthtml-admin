@@ -57,7 +57,7 @@ oauth = Auth(app, client, skip=("/", "/logout", "/redirect"), login_path="/")
 def ex_navbar1():
     return NavBar(
         A("Home", href="/home"),
-        A("Users", href="/admin/users"),
+        A("Admin", href="/admin"),
         A("Theme", href="/theme"),
         A("Logout", href="/logout"),
         brand=H3("FastHTML"),
@@ -101,12 +101,12 @@ def home(sess):
 def theme():
     return (
         ex_navbar1(),
-        ThemePicker(color=True, radii=True, shadows=True, font=True, mode=True, cls="p-4", custom_themes=[]),
+        ThemePicker(color=True, radii=True, shadows=True, font=True, mode=True),
     )
 
 
-@rt("/admin/users")
-def admin_users(sess):
+@rt("/admin")
+def admin(sess):
     # Restrict access to certain users
     current = db.users("oauth_id=?", (sess["auth"],))[0]
     if not (current.email.startswith("hamkuu") or current.email.endswith("@nablas.com")):
@@ -121,18 +121,14 @@ def admin_users(sess):
 
     return (
         ex_navbar1(),
-        Container(
-            H2("User Administration"),
-            table,
-            Div(id="modal"),
-        ),
+        Container(H2("Users Admin"), table, Div(id="modal")),
     )
 
 
 def edit_modal(uid: int):
     user = db.users[uid]
-    return Div(
-        Button("Edit", data_uk_toggle="target: #edit-modal"),
+    return (
+        Button("Edit", cls=ButtonT.primary, data_uk_toggle="target: #edit-modal"),
         Modal(
             ModalTitle("Edit Credits"),
             Form(action=update_credit, method="post")(
@@ -151,7 +147,7 @@ def update_credit(uid: int, new_credits: int):
     user = db.users[uid]
     user.credits = new_credits
     db.users.update(user)
-    return RedirectResponse("/admin/users", status_code=303)
+    return RedirectResponse("/admin", status_code=303)
 
 
 serve()
