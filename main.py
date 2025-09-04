@@ -90,6 +90,7 @@ def home(sess):
                 H2(f"Welcome, {user.name}!"),
                 Subtitle(f"Email: {user.email}"),
                 Img(src=user.picture, alt="User Picture", cls="w-24 h-24 rounded-full", referrerpolicy="no-referrer"),
+                P(f"Available Credits: {user.credits}"),
             ),
             cls="py-10",
         ),
@@ -114,25 +115,9 @@ def admin_users(sess):
         return Titled("Forbidden", P("You do not have access to this page."))
 
     header = ["ID", "Email", "Name", "Credits", "Actions"]
-
     rows = []
     for u in db.users():
-        rows.append(
-            [
-                u.id,
-                u.email,
-                u.name,
-                u.credits,
-                Button(
-                    "Edit",
-                    type="button",
-                    hx_get=edit_credit.to(id=u.id),
-                    hx_target="#modal",
-                    hx_swap="innerHTML",
-                    cls=ButtonT.secondary,
-                ),
-            ]
-        )
+        rows.append([u.id, u.email, u.name, u.credits, edit_modal(uid=u.id)])
 
     table = TableFromLists(header, rows, cls=(TableT.striped, TableT.hover))
 
@@ -146,16 +131,21 @@ def admin_users(sess):
     )
 
 
-@rt
-def edit_credit(id: int):
-    user = db.users[id]
-    form = Form(action=update_credit, method="post")(
-        Input(type="hidden", name="id", value=user.id),
-        Input(type="number", name="credits", value=user.credits, cls="w-20 text-center"),
-        Button("Save", cls=ButtonT.primary, type="submit", size="sm"),
-        A("Cancel", href="/admin/users", cls=ButtonT.secondary),  # link back to list
+def edit_modal(uid: int):
+    user = db.users[uid]
+    return Div(
+        Button("Edit", data_uk_toggle="target: #edit-modal"),
+        Modal(
+            ModalTitle("Edit Credits"),
+            Form(action=update_credit, method="post")(
+                Input(type="hidden", name="uid", value=user.id),
+                Input(type="number", name="new_credits", value=user.credits),
+                Button("Save", cls=ButtonT.primary, type="submit"),
+            ),
+            footer=ModalCloseButton("Close", cls=ButtonT.secondary),
+            id="edit-modal",
+        ),
     )
-    return Titled("Edit Credits", form)
 
 
 @rt
